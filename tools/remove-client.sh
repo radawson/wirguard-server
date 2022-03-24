@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check to ensure script is not run as root
+if [[ "${UID}" -ne 0 ]]; then
+  UNAME=$(id -un)
+  printf "This script must be run as root" >&2
+  usage
+fi
+
 if [ $# -eq 0 ]
 then
 	echo "You must specify a valid client name or public key"
