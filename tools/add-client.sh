@@ -104,14 +104,14 @@ else
 	if [ -z "${PEER_IP}" ]
 	then
 		PEER_IP="10.100.200."$(expr $(cat "${TOOL_DIR}"/last-ip.txt | tr "." " " | awk '{print $4}') + 1)
-		sudo echo "${PEER_IP}" > /etc/wireguard/last-ip.txt
+		sudo echo "${PEER_IP}" > "${TOOL_DIR}"/last-ip.txt
 	fi
 	
 	#Try to get server IP address
-	if [[ ${HOSTIP} == "" ]]
+	if [[ ${SERVER_IP} == "" ]]
 	then
 	    echo "Server IP not found automatically. Update wg0.conf before sending to clients"
-		HOSTIP="<Insert IP HERE>"
+		SERVER_IP="<Insert IP HERE>"
 	fi
 	
 	SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_public_key)
@@ -119,7 +119,7 @@ else
 	
 	# Create the client config
 	PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.priv)
-    cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$HOSTIP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
+    cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
 	cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 	# Create QR Code for export
 	qrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png < ${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
