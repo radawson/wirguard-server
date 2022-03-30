@@ -6,7 +6,35 @@
 ## Global Variables
 FQDN=$(hostname -f)
 HOSTIP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
-peer_name=""
+PEER_NAME=""
+
+# Functions
+check_root() {
+  # Check to ensure script is not run as root
+  if [[ "${UID}" -eq 0 ]]; then
+    UNAME=$(id -un)
+    printf "\nThis script must not be run as root.\n\n" >&2
+    usage
+  fi
+}
+
+echo_out() {
+  local MESSAGE="${@}"
+  if [[ "${VERBOSE}" = 'true' ]]; then
+    printf "${MESSAGE}\n"
+  fi
+}
+
+usage() {
+  echo "Usage: ${0} [-v] [-i IP_RANGE] [-n KEY_NAME] [-t TOOL_DIR]" >&2
+  echo "Sets up and starts wireguard server."
+  echo "Do not run as root."
+  echo "-i IP_RANGE	Set the server network IP range."
+  echo "-n KEY_NAME	Set the server key file name."
+  echo "-t TOOL_DIR	Set tool installation directory."
+  echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
+  exit 1
+}
 
 ## MAIN ##
 # Check to ensure script is run as root
