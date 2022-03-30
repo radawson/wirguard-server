@@ -81,20 +81,20 @@ shift "$(( OPTIND - 1 ))"
 
 # Ubuntu
 echo_out "Updating the OS."
-apt-get update
+sudo apt-get update
 echo_out "Installing WireGuard"
-apt-get -y install wireguard
-apt-get -y install wireguard-tools
+sudo apt-get -y install wireguard
+sudo apt-get -y install wireguard-tools
 echo_out "WireGuard installed"
 
 # Install zip
 echo_out "Installing zip."
-apt-get -y install zip
+sudo apt-get -y install zip
 echo_out "Zip installed."
 
 # Install QR Encoder
 echo_out "Installing QR encoder."
-apt-get install -y qrencode
+sudo apt-get install -y qrencode
 echo_out "QR encoder installed."
 
 # Create Server Keys
@@ -114,7 +114,7 @@ then
 	done
 else
 	echo "Creating ${INSTALL_DIRECTORY}"
-	mkdir -m 0700 ${INSTALL_DIRECTORY}
+	sudo mkdir -m 0700 ${INSTALL_DIRECTORY}
 fi
 
 # Switch to server installation directory
@@ -161,11 +161,11 @@ echo ${SERVER_IP} > ${TOOL_DIR}/last_ip.txt
 # Get run scripts/master/wg0-server
 echo_out "Downloading tool scripts"
 wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/add-client.sh
-chmod +x add-client.sh
+sudo chmod +x add-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/install-client.sh
-chmod +x install-client.sh
+sudo chmod +x install-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/remove-client.sh
-chmod +x remove-client.sh
+sudo chmod +x remove-client.sh
 echo_out "Tool scripts installed to ${TOOL_DIR}"
 
 # Start up server
