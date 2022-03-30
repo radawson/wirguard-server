@@ -10,6 +10,7 @@
 # Change these if you need to
 INSTALL_DIRECTORY="/etc/wireguard"
 SERVER_IP="10.100.200.1"
+SERVER_PORT="51280"
 SERVER_PRIVATE_FILE="server_key.pri"
 SERVER_PUBLIC_FILE="server_key.pub"
 TOOL_DIR="${HOME}/wireguard"
@@ -32,11 +33,12 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-v] [-i IP_RANGE] [-n KEY_NAME] [-t TOOL_DIR]" >&2
+  echo "Usage: ${0} [-v] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
   echo "Do not run as root."
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
+  echo "-p LISTEN_PORT	Set the server listen port"
   echo "-t TOOL_DIR	Set tool installation directory."
   echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
   exit 1
@@ -46,7 +48,7 @@ usage() {
 check_root
 
 # Provide usage statement if no parameters
-while getopts i:n:t:v OPTION; do
+while getopts i:n:p:t:v OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -63,6 +65,11 @@ while getopts i:n:t:v OPTION; do
 	  SERVER_PRIVATE_FILE="${OPTARG}.pri"
 	  SERVER_PUBLIC_FILE="${OPTARG}.pub"
 	  echo_out "Server key file named ${OPTARG}."
+	  ;;
+	p)
+	# Set the server listen port
+	  SERVER_PORT="${OPTARG}"
+	  echo_out "Server listen port set to ${OPTARG}."
 	  ;;
 	t)
 	# Set tool installation directory
@@ -149,7 +156,7 @@ then
 else
 	# Add server key to config
 	SERVER_PRI_KEY=$(cat ${TOOL_DIR}/server/${SERVER_PRIVATE_FILE})
-	cat ${TOOL_DIR}/config/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > "${TOOL_DIR}"/server/wg0.conf
+	cat ${TOOL_DIR}/config/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's/:SERVER_PORT:/'"${SERVER_PORT}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > "${TOOL_DIR}"/server/wg0.conf
 	echo_out "Private key added to configuration."
 fi
 
@@ -160,7 +167,7 @@ sudo cp "${TOOL_DIR}"/server/wg0.conf /etc/wireguard/wg0.conf
 cd ${TOOL_DIR}
 
 # Add server IP to last-ip.txt file
-ADD_LINE=${SERVER_IP} + ":server"
+ADD_LINE="${SERVER_IP}:server"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
 echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
 
@@ -183,8 +190,8 @@ sudo cp ./ip_forward /proc/sys/net/ipv4/
 sudo wg-quick up wg0
 
 # Open firewall ports
-echo_out "Open firewall port 51820"
-sudo ufw allow 51820/udp
+echo_out "Open firewall port ${SERVER_PORT}"
+sudo ufw allow "${SERVER_PORT}"/udp
 echo "Server started"
 
 # Use this to forward traffic from the server
@@ -194,3 +201,5 @@ sudo sysctl -p /etc/sysctl.conf
 
 # Set up wireguard to run on boot
 sudo systemctl enable wg-quick@wg0.service
+
+printf "\n\nWireguard tools installed at ${TOOL_DIR}.\n"

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Install instructions for clients created by add-client.sh
 # (C) 2021 Richard Dawson 
+# v2.0.0
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -17,7 +18,7 @@ sudo apt-get -y install wireguard-tools
 # put wg0.conf in `/etc/wireguard/`
 sudo cp wg0.conf /etc/wireguard/wg0.conf
 
-# DNS Resolver commands (may be rquired)
+# DNS Resolver commands (may be required)
 #sudo ln -s /usr/bin/resolvectl /usr/local/bin/resolvconf
 #sudo systemctl enable systemd-resolved.service
 

@@ -5,10 +5,11 @@
 
 ## Global Variables
 FQDN=$(hostname -f)
-HOSTIP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
 PATTERN=" |'"
 PEER_IP=""
 PEER_NAME=""
+SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
+SERVER_PORT="51280"
 TOOL_DIR="${HOME}/wireguard"
 
 # Functions
@@ -41,6 +42,9 @@ usage() {
   echo "Creates a new client on the wireguard server."
   echo "Do not run as root."
   echo "-i IP_ADDRESS	Set the peer ip address."
+  echo "-p SERVER_PORT	Set the server listen port."
+  echo "-s SERVER_IP	Set the server ip address."
+  echo "-t TOOL_DIR		Set the tool installation directory."
   echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
   exit 1
 }
@@ -49,7 +53,7 @@ usage() {
 check_root
 
 # Provide usage statement if no parameters
-while getopts i:t:v OPTION; do
+while getopts i:p:s:t:v OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -61,6 +65,16 @@ while getopts i:t:v OPTION; do
       PEER_IP="${OPTARG}"
       echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
       ;;
+	p)
+	# Set server port
+	  SERVER_PORT="${OPTARG}"
+	  echo_out "Server port set to ${OPTARG}"
+	  ;;
+	s)
+	# Set Server IP address
+	  SERVER_IP="${OPTARG}"
+	  echo_out "Server IP address set to ${OPTARG}"
+	  ;;
 	t)
 	# Set IP address if none specified
       TOOL_DIR="${OPTARG}"
@@ -105,7 +119,7 @@ else
 	
 	# Create the client config
 	PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.priv)
-    cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$HOSTIP"'|' > clients/${PEER_NAME}/wg0.conf
+    cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$HOSTIP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
 	cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 	# Create QR Code for export
 	qrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png < ${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
