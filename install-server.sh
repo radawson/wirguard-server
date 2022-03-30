@@ -97,8 +97,24 @@ echo_out "Installing QR encoder."
 sudo apt-get install -y qrencode
 echo_out "QR encoder installed."
 
+# Create tool directory
+echo_out "Creating tool directory"
+mkdir -p ${TOOL_DIR}
+mkdir -p "${TOOL_DIR}"/config
+
+# Get config templates
+echo_out "Downloading WG adapter config files..."
+cd "${TOOL_DIR}"/config
+wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-server.example.conf 
+wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-client.example.conf
+echo_out "WG adapter config files downloaded."
+
+# Create server directory
+mkdir -p "${TOOL_DIR}"/server
+
 # Create Server Keys
 echo_out "Creating server keys."
+cd "${TOOL_DIR}"/server
 if [ -f ${INSTALL_DIRECTORY}/wg0.conf ]
 then
 	echo "${INSTALL_DIRECTORY}/wg0.conf exists"
@@ -117,9 +133,6 @@ else
 	sudo mkdir -m 0700 ${INSTALL_DIRECTORY}
 fi
 
-# Switch to server installation directory
-cd ${INSTALL_DIRECTORY}
-
 # Check for a pre-existing installation
 if [ -f ${SERVER_PRIVATE_FILE} ] && [ ${OVERWRITE} == 0 ]
 then
@@ -128,27 +141,20 @@ else
 	umask 077; wg genkey | tee ${SERVER_PRIVATE_FILE} | wg pubkey > ${SERVER_PUBLIC_FILE}
 fi
 
-# Get config
-echo_out "Downloading WG adapter config files..."
-sudo wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-server.example.conf 
-sudo wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-client.example.conf
-echo_out "WG adapter config files downloaded."
-
 # Check if wg0.conf already exists
 echo_out "Building custom configuration files..."
-if [ -f ${INSTALL_DIRECTORY}/wg0.conf ] && [ ${OVERWRITE} == 0 ] 
+if [ -f ${TOOL_DIR}/server/wg0.conf ] && [ ${OVERWRITE} == 0 ] 
 then
-	echo_out "${INSTALL_DIRECTORY}/wg0.conf exists, skipping."
+	echo_out "${TOOL_DIR}/server/wg0.conf exists, skipping."
 else
 	# Add server key to config
-	SERVER_PRI_KEY=$(cat ${INSTALL_DIRECTORY}/${SERVER_PRIVATE_FILE})
-	cat ${INSTALL_DIRECTORY}/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > $INSTALL_DIRECTORY/wg0.conf
+	SERVER_PRI_KEY=$(cat ${TOOL_DIR}/server/${SERVER_PRIVATE_FILE})
+	cat ${TOOL_DIR}/config/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > "${TOOL_DIR}"/server/wg0.conf
 	echo_out "Private key added to configuration."
 fi
 
-# Create tool directory
-echo_out "Creating tool directory"
-mkdir -p ${TOOL_DIR}
+# Copy wg0.conf to /etc/wireguard
+sudo cp "${TOOL_DIR}"/server/wg0.conf /etc/wireguard/wg0.conf
 
 # Change to tool directory
 cd ${TOOL_DIR}
@@ -156,7 +162,7 @@ cd ${TOOL_DIR}
 # Add server IP to last-ip.txt file
 ADD_LINE=${SERVER_IP} + ":server"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
-echo ${SERVER_IP} > ${TOOL_DIR}/last_ip.txt
+echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
 
 # Get run scripts/master/wg0-server
 echo_out "Downloading tool scripts"
