@@ -44,7 +44,7 @@ usage() {
   echo "-i IP_ADDRESS	Set the peer ip address."
   echo "-p SERVER_PORT	Set the server listen port."
   echo "-s SERVER_IP	Set the server ip address."
-  echo "-t TOOL_DIR		Set the tool installation directory."
+  echo "-t TOOL_DIR	Set the tool installation directory."
   echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
   exit 1
 }
@@ -98,13 +98,13 @@ else
 	PEER_NAME="${@}"
 	echo_out "Creating client config for: ${PEER_NAME}"
 	mkdir -p ${TOOL_DIR}/clients/"${PEER_NAME}"
-	wg genkey | (umask 0077 && tee ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".priv) | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
+	wg genkey | (umask 0077 && tee ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pri) | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
 	
 	# get command line ip address or generated from last-ip.txt
 	if [ -z "${PEER_IP}" ]
 	then
-		PEER_IP="10.100.200."$(expr $(cat "${TOOL_DIR}"/last-ip.txt | tr "." " " | awk '{print $4}') + 1)
-		sudo echo "${PEER_IP}" > "${TOOL_DIR}"/last-ip.txt
+		PEER_IP="10.100.200."$(expr $(cat "${TOOL_DIR}"/last_ip.txt | tr "." " " | awk '{print $4}') + 1)
+		sudo echo "${PEER_IP}" > "${TOOL_DIR}"/last_ip.txt
 	fi
 	
 	#Try to get server IP address
@@ -114,11 +114,11 @@ else
 		SERVER_IP="<Insert IP HERE>"
 	fi
 	
-	SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_public_key)
+	SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_key.pub)
 	IP3=`echo ${PEER_IP} | cut -d"." -f1-3`.0
 	
 	# Create the client config
-	PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.priv)
+	PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
     cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
 	cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 	# Create QR Code for export
@@ -131,7 +131,7 @@ fi
 
 echo ""
 echo_out "Adding peer ${PEER_NAME} to peer list from /clients"
-PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.priv)
+PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
 PEER_PUB_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pub)
 ADD_LINE="${PEER_IP},${PEER_NAME},${PEER_PUB_KEY}"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
