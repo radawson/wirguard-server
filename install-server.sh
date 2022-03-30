@@ -118,8 +118,8 @@ mkdir -p "${TOOL_DIR}"/config
 # Get config templates
 echo_out "Downloading WG adapter config files..."
 cd "${TOOL_DIR}"/config
-wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-server.example.conf 
-wget https://raw.githubusercontent.com/radawson/wireguard-server/master/config/wg0-client.example.conf
+wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/config/wg0-server.example.conf 
+wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/config/wg0-client.example.conf
 echo_out "WG adapter config files downloaded."
 
 # Create server directory
@@ -178,13 +178,13 @@ ADD_LINE="${SERVER_IP},server,${SERVER_PUB_KEY}"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
 echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
 
-# Get run scripts/master/wg0-server
+# Download tool scripts
 echo_out "Downloading tool scripts"
-wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/add-client.sh
+wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/add-client.sh
 sudo chmod +x add-client.sh
-wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/install-client.sh
+wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/install-client.sh
 sudo chmod +x install-client.sh
-wget https://raw.githubusercontent.com/radawson/wireguard-server/master/tools/remove-client.sh
+wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/remove-client.sh
 sudo chmod +x remove-client.sh
 echo_out "Tool scripts installed to ${TOOL_DIR}"
 
