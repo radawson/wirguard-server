@@ -49,13 +49,18 @@ usage() {
 check_root
 
 # Provide usage statement if no parameters
-while getopts i:n:p:t:vx OPTION; do
+while getopts vdi:n:p:t: OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
       VERBOSE='true'
       echo_out "Verbose mode on."
       ;;
+	d)
+	# Set installation to dev branch
+	  BRANCH="dev"
+	  echo_out "Branch set to dev branch"
+	  ;;
     i)
 	# Set IP range if none specified
       SERVER_IP="${OPTARG}"
@@ -76,11 +81,6 @@ while getopts i:n:p:t:vx OPTION; do
 	# Set tool installation directory
 	  TOOL_DIRECTORY="${OPTARG}"
 	  echo_out "Tool installation directory set to ${TOOL_DIR}."
-	  ;;
-	x)
-	# Set installation to dev branch
-	  BRANCH="dev"
-	  echo_out "Branch set to dev branch"
 	  ;;
     ?)
       echo "invalid option" >&2
