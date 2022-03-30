@@ -19,7 +19,7 @@ check_root() {
   # Check to ensure script is not run as root
   if [[ "${UID}" -eq 0 ]]; then
     UNAME=$(id -un)
-    printf "This script must not be run as root" >&2
+    printf "\nThis script must not be run as root.\n" >&2
     usage
   fi
 }
@@ -38,7 +38,7 @@ usage() {
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
   echo "-t TOOL_DIR	Set tool installation directory."
-  echo "-v 			Verbose mode. Displays the server name before executing COMMAND."
+  echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
   exit 1
 }
 
@@ -99,7 +99,7 @@ echo_out "QR encoder installed."
 
 # Create Server Keys
 echo_out "Creating server keys."
-if [ -f $INSTALL_DIRECTORY/wg0.conf ]
+if [ -f ${INSTALL_DIRECTORY}/wg0.conf ]
 then
 	echo "${INSTALL_DIRECTORY}/wg0.conf exists"
 	echo "This process could over-write existing keys!"
@@ -136,13 +136,13 @@ echo_out "WG adapter config files downloaded."
 
 # Check if wg0.conf already exists
 echo_out "Building custom configuration files..."
-if [ -f ${INSTALL_DIRECTORY}/wg0.conf ] && [ $OVERWRITE == 0 ] 
+if [ -f ${INSTALL_DIRECTORY}/wg0.conf ] && [ ${OVERWRITE} == 0 ] 
 then
-	echo_out "$INSTALL_DIRECTORY/wg0.conf exists, skipping."
+	echo_out "${INSTALL_DIRECTORY}/wg0.conf exists, skipping."
 else
 	# Add server key to config
 	SERVER_PRI_KEY=$(cat ${INSTALL_DIRECTORY}/${SERVER_PRIVATE_FILE})
-	cat $INSTALL_DIRECTORY/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > $INSTALL_DIRECTORY/wg0.conf
+	cat ${INSTALL_DIRECTORY}/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > $INSTALL_DIRECTORY/wg0.conf
 	echo_out "Private key added to configuration."
 fi
 
