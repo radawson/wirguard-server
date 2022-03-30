@@ -167,7 +167,8 @@ sudo cp "${TOOL_DIR}"/server/wg0.conf /etc/wireguard/wg0.conf
 cd ${TOOL_DIR}
 
 # Add server IP to last-ip.txt file
-ADD_LINE="${SERVER_IP}:server"
+SERVER_PUB_KEY=$(cat ${TOOL_DIR}/server/${SERVER_PUBLIC_FILE})
+ADD_LINE="${SERVER_IP},server,${SERVER_PUB_KEY}"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
 echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
 

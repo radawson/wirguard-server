@@ -133,6 +133,9 @@ echo ""
 echo_out "Adding peer ${PEER_NAME} to peer list from /clients"
 PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.priv)
 PEER_PUB_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pub)
+ADD_LINE="${PEER_IP},${PEER_NAME},${PEER_PUB_KEY}"
+echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
+echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
     
 # Add client (peer) to server config
 echo_out "Adding peer to server peer list"
@@ -142,7 +145,7 @@ sudo systemctl restart wg-quick@wg0.service
 	
 sudo wg set wg0 peer "${PEER_PUB_KEY}" allowed-ips ${PEER_IP}/32
 echo_out "Adding peer to hosts file"
-echo ${PEER_IP}" "${PEER_NAME} | sudo tee -a /etc/hosts
+echo "${PEER_IP} ${PEER_NAME}" | sudo tee -a /etc/hosts
 
 # Show new server config
 sudo wg show
