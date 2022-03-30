@@ -182,7 +182,7 @@ sudo ufw allow 51820/udp
 echo "Server started"
 
 # Use this to forward traffic from the server
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sudo sysctl -p /etc/sysctl.conf
 #ufw route allow in on wg0 out on enp5s0
 
