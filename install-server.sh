@@ -8,6 +8,7 @@
 
 # Default variables
 # Change these if you need to
+BRANCH="master"
 INSTALL_DIRECTORY="/etc/wireguard"
 SERVER_IP="10.100.200.1"
 SERVER_PORT="51280"
@@ -48,7 +49,7 @@ usage() {
 check_root
 
 # Provide usage statement if no parameters
-while getopts i:n:p:t:v OPTION; do
+while getopts i:n:p:t:vx OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -75,6 +76,11 @@ while getopts i:n:p:t:v OPTION; do
 	# Set tool installation directory
 	  TOOL_DIRECTORY="${OPTARG}"
 	  echo_out "Tool installation directory set to ${TOOL_DIR}."
+	  ;;
+	x)
+	# Set installation to dev branch
+	  BRANCH="dev"
+	  echo_out "Branch set to dev branch"
 	  ;;
     ?)
       echo "invalid option" >&2

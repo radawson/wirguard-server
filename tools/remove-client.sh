@@ -8,8 +8,6 @@ FQDN=$(hostname -f)
 PATTERN=" |'"
 PEER_IP=""
 PEER_NAME=""
-SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
-SERVER_PORT="51280"
 TOOL_DIR="${HOME}/wireguard"
 
 # Functions
@@ -38,7 +36,7 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-dv] PEER_NAME" >&2
+  echo "Usage: ${0} [-dv] [-t TOOL_DIR] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
   echo "Do not run as root."
   echo "-d			Delete config files"
