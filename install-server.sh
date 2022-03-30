@@ -19,7 +19,7 @@ check_root() {
   # Check to ensure script is not run as root
   if [[ "${UID}" -eq 0 ]]; then
     UNAME=$(id -un)
-    printf "\nThis script must not be run as root.\n" >&2
+    printf "\nThis script must not be run as root.\n\n" >&2
     usage
   fi
 }
