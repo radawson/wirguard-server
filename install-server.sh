@@ -109,7 +109,7 @@ then
 		case $yn in
 			[Yy]* ) OVERWRITE=1; break;;
 			[Nn]* ) OVERWRITE=0; break;;
-			* ) echo "Please answer yes or no.";;
+			* ) echo "Please answer y or n.";;
 		esac
 	done
 else
@@ -125,7 +125,7 @@ if [ -f ${SERVER_PRIVATE_FILE} ] && [ ${OVERWRITE} == 0 ]
 then
 	echo "${SERVER_PRIVATE_FILE} exists, skipping."
 else
-	umask 077; wg genkey | tee $SERVER_PRIVATE_FILE | wg pubkey > $SERVER_PUBLIC_FILE
+	umask 077; wg genkey | tee ${SERVER_PRIVATE_FILE} | wg pubkey > ${SERVER_PUBLIC_FILE}
 fi
 
 # Get config
