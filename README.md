@@ -1,8 +1,8 @@
 # wireguard-server
 Script and interface for building and maintaining wireguard networks
-v1.0.1
+v2.0.0
 
 ## Usage
-Run install-server to build the server.
+Run `install-server.sh` as root to build the server.
 
 **Command Line Arguments**
