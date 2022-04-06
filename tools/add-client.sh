@@ -152,5 +152,3 @@ sudo wg show
 
 # Show QR code in bash
 qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
-
-

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.0.0
+# v2.1.0
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -9,6 +9,7 @@
 # Default variables
 # Change these if you need to
 BRANCH="master"
+FORCE="false"
 INSTALL_DIRECTORY="/etc/wireguard"
 SERVER_IP="10.100.200.1"
 SERVER_PORT="51280"
@@ -34,9 +35,10 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-v] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
+  echo "Usage: ${0} [-fv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
-  echo "Do not run as root."
+  echo 
+  echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
   echo "-p LISTEN_PORT	Set the server listen port"
@@ -46,10 +48,8 @@ usage() {
 }
 
 ## MAIN ##
-check_root
-
 # Provide usage statement if no parameters
-while getopts vdi:n:p:t: OPTION; do
+while getopts dfiv:n:p:t: OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -60,6 +60,10 @@ while getopts vdi:n:p:t: OPTION; do
 	# Set installation to dev branch
 	  BRANCH="dev"
 	  echo_out "Branch set to dev branch"
+	  ;;
+	f)
+	# Force the script to run as root
+	  FORCE='true'
 	  ;;
     i)
 	# Set IP range if none specified
@@ -88,6 +92,11 @@ while getopts vdi:n:p:t: OPTION; do
       ;;
   esac
 done
+
+# Check if forcing to run as root
+if [[ "${FORCE}" != "true" ]]; then
+  check_root
+fi
 
 # Clear the options from the arguments
 shift "$(( OPTIND - 1 ))"
