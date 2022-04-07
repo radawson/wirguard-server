@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.0
+# v2.1.1
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -35,10 +35,11 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
+  echo "Usage: ${0} [-fhv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
   echo 
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
+  echo "-h		Help displays script usage information."
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
   echo "-p LISTEN_PORT	Set the server listen port"
@@ -49,7 +50,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts dfvi:n:p:t: OPTION; do
+while getopts dfhvi:n:p:t: OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -64,6 +65,10 @@ while getopts dfvi:n:p:t: OPTION; do
 	f)
 	# Force the script to run as root
 	  FORCE='true'
+	  ;;
+	h)
+	# Help = display usage
+	  usage
 	  ;;
     i)
 	# Set IP range if none specified
@@ -204,6 +209,7 @@ echo "Server Starting..."
 sudo sysctl -p
 echo 1 > ./ip_forward
 sudo cp ./ip_forward /proc/sys/net/ipv4/
+rm ./ip_forward
 
 sudo wg-quick up wg0
 
