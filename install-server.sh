@@ -106,19 +106,24 @@ fi
 # Clear the options from the arguments
 shift "$(( OPTIND - 1 ))"
 
-# Ubuntu
+# OS Update
 echo_out "Updating the OS."
 sudo apt-get update
 sudo apt-get -y upgrade
 
-echo_out "Installing WireGuard"
-sudo apt-get -y install wireguard
-sudo apt-get -y install wireguard-tools
+# Install wireguard
+if [[ -z $(apt list --installed | grep ^wireguard) ]]; then
+  echo_out "Installing WireGuard"
+  sudo apt-get -y install wireguard
+  sudo apt-get -y install wireguard-tools
+fi
 echo_out "WireGuard installed"
 
 # Install zip
-echo_out "Installing zip."
-sudo apt-get -y install zip
+if [[ -z $(apt list --installed | grep ^zip) ]]; then
+  echo_out "Installing zip."
+  sudo apt-get -y install zip
+fi
 echo_out "Zip installed."
 
 # Install QR Encoder
