@@ -22,7 +22,7 @@ check_root() {
   # Check to ensure script is not run as root
   if [[ "${UID}" -eq 0 ]]; then
     UNAME=$(id -un)
-    printf "\nThis script must not be run as root.\n\n" >&2
+    printf "\nThis script should not be run as root.\n\n" >&2
     usage
   fi
 }
@@ -49,7 +49,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts dfiv:n:p:t: OPTION; do
+while getopts dfvi:n:p:t: OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -104,6 +104,8 @@ shift "$(( OPTIND - 1 ))"
 # Ubuntu
 echo_out "Updating the OS."
 sudo apt-get update
+sudo apt-get -y upgrade
+
 echo_out "Installing WireGuard"
 sudo apt-get -y install wireguard
 sudo apt-get -y install wireguard-tools
