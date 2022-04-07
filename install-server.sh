@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.1
+# v2.1.2
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -212,9 +212,7 @@ echo_out "Tool scripts installed to ${TOOL_DIR}"
 # Start up server
 echo "Server Starting..."
 sudo sysctl -p
-echo 1 > ./ip_forward
-sudo cp ./ip_forward /proc/sys/net/ipv4/
-rm ./ip_forward
+echo 1 | sudo tee /proc/sys/net/ipv4//ip_forward
 
 sudo wg-quick up wg0
 
