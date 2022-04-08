@@ -41,11 +41,12 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fhv] [-i IP_ADDRESS] PEER_NAME" >&2
+  echo "Usage: ${0} [-fhov] [-i IP_ADDRESS] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
   echo 
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-i IP_ADDRESS	Set the peer ip address."
+  echo "-o 		Overwrite existing client configuration."
   echo "-p SERVER_PORT	Set the server listen port."
   echo "-q		Display QR code on screen."
   echo "-s SERVER_IP	Set the server ip address."
@@ -56,7 +57,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts hi:p:qs:t:v OPTION; do
+while getopts hi:op:qs:t:v OPTION; do
   case ${OPTION} in
     f)
 	# Force the script to run as root
@@ -71,6 +72,10 @@ while getopts hi:p:qs:t:v OPTION; do
       PEER_IP="${OPTARG}"
       echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
       ;;
+	o)
+	# Set overwrite to true
+	  OVERWRITE="true"
+	  ;;
 	p)
 	# Set server port
 	  SERVER_PORT="${OPTARG}"
@@ -139,7 +144,7 @@ fi
 
 echo_out "Creating client config for: ${PEER_NAME}"
 mkdir -p ${TOOL_DIR}/clients/"${PEER_NAME}"
-wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
+wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey > "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}".pub
 	
 # get command line ip address or generated from last-ip.txt
 if [ -z "${PEER_IP}" ]; then
