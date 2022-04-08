@@ -7,6 +7,7 @@
 DISPLAY_QR="false"
 FORCE="false"
 FQDN=$(hostname -f)
+OVERWRITE="false"
 PATTERN=" |'"
 PEER_IP=""
 PEER_NAME=""
@@ -116,9 +117,29 @@ fi
 
 check_string "${@}" "PEER_NAME"
 PEER_NAME="${@}"
+
+# Check if peer config already exists
+if [[ "${OVERWRITE}" -ne "true" ]]; then
+  if [[ -f "${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf" ]]; then
+    echo -e "\nConfig for client ${PEER_NAME} found.\n\n"
+    cat "${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf"
+    # Show QR code on console
+    if [[ "${DISPLAY_QR}" == "true" ]]; then
+      qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
+    fi
+    echo
+    read -p "Overwrite existing config? [y/N] " YESNO
+    if [[ "${YESNO}" =="y" || "${YESNO}" =="Y" ]]; then
+	  return
+	else
+	  exit 10
+	fi
+  fi
+fi
+
 echo_out "Creating client config for: ${PEER_NAME}"
 mkdir -p ${TOOL_DIR}/clients/"${PEER_NAME}"
-wg genkey | (umask 0077 && tee ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pri) | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
+wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
 	
 # get command line ip address or generated from last-ip.txt
 if [ -z "${PEER_IP}" ]; then
@@ -170,7 +191,7 @@ echo "${PEER_IP} ${PEER_NAME}" | sudo tee -a /etc/hosts
 # Show new server config
 sudo wg show
 
-# Show QR code in bash
+# Show QR code on console
 if [[ "${DISPLAY_QR}" == "true" ]]; then
   qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
 fi
