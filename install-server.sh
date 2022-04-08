@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.0
+# v2.1.2
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -35,10 +35,11 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
+  echo "Usage: ${0} [-fhv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
   echo 
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
+  echo "-h		Help displays script usage information."
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
   echo "-p LISTEN_PORT	Set the server listen port"
@@ -49,7 +50,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts dfvi:n:p:t: OPTION; do
+while getopts dfhvi:n:p:t: OPTION; do
   case ${OPTION} in
     v)
       # Verbose is first so any other elements will echo as well
@@ -64,6 +65,10 @@ while getopts dfvi:n:p:t: OPTION; do
 	f)
 	# Force the script to run as root
 	  FORCE='true'
+	  ;;
+	h)
+	# Help = display usage
+	  usage
 	  ;;
     i)
 	# Set IP range if none specified
@@ -101,19 +106,24 @@ fi
 # Clear the options from the arguments
 shift "$(( OPTIND - 1 ))"
 
-# Ubuntu
+# OS Update
 echo_out "Updating the OS."
 sudo apt-get update
 sudo apt-get -y upgrade
 
-echo_out "Installing WireGuard"
-sudo apt-get -y install wireguard
-sudo apt-get -y install wireguard-tools
+# Install wireguard
+if [[ -z $(apt list --installed | grep ^wireguard) ]]; then
+  echo_out "Installing WireGuard"
+  sudo apt-get -y install wireguard
+  sudo apt-get -y install wireguard-tools
+fi
 echo_out "WireGuard installed"
 
 # Install zip
-echo_out "Installing zip."
-sudo apt-get -y install zip
+if [[ -z $(apt list --installed | grep ^zip) ]]; then
+  echo_out "Installing zip."
+  sudo apt-get -y install zip
+fi
 echo_out "Zip installed."
 
 # Install QR Encoder
@@ -202,8 +212,7 @@ echo_out "Tool scripts installed to ${TOOL_DIR}"
 # Start up server
 echo "Server Starting..."
 sudo sysctl -p
-echo 1 > ./ip_forward
-sudo cp ./ip_forward /proc/sys/net/ipv4/
+echo 1 | sudo tee /proc/sys/net/ipv4//ip_forward
 
 sudo wg-quick up wg0
 
