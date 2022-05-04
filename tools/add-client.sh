@@ -134,7 +134,7 @@ if [[ "${OVERWRITE}" -ne "true" ]]; then
     fi
     echo
     read -p "Overwrite existing config? [y/N] " YESNO
-    if [[ "${YESNO}" =="y" || "${YESNO}" =="Y" ]]; then
+    if [[ "${YESNO}" == "y" || "${YESNO}" == "Y" ]]; then
 	  return
 	else
 	  exit 10
