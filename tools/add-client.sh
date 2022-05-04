@@ -7,6 +7,7 @@
 DISPLAY_QR="false"
 FORCE="false"
 FQDN=$(hostname -f)
+OVERWRITE="false"
 PATTERN=" |'"
 PEER_IP=""
 PEER_NAME=""
@@ -40,11 +41,12 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fhv] [-i IP_ADDRESS] PEER_NAME" >&2
+  echo "Usage: ${0} [-fhov] [-i IP_ADDRESS] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
   echo 
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-i IP_ADDRESS	Set the peer ip address."
+  echo "-o 		Overwrite existing client configuration."
   echo "-p SERVER_PORT	Set the server listen port."
   echo "-q		Display QR code on screen."
   echo "-s SERVER_IP	Set the server ip address."
@@ -55,7 +57,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts hi:p:qs:t:v OPTION; do
+while getopts hi:op:qs:t:v OPTION; do
   case ${OPTION} in
     f)
 	# Force the script to run as root
@@ -70,6 +72,10 @@ while getopts hi:p:qs:t:v OPTION; do
       PEER_IP="${OPTARG}"
       echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
       ;;
+	o)
+	# Set overwrite to true
+	  OVERWRITE="true"
+	  ;;
 	p)
 	# Set server port
 	  SERVER_PORT="${OPTARG}"
@@ -116,9 +122,29 @@ fi
 
 check_string "${@}" "PEER_NAME"
 PEER_NAME="${@}"
+
+# Check if peer config already exists
+if [[ "${OVERWRITE}" -ne "true" ]]; then
+  if [[ -f "${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf" ]]; then
+    echo -e "\nConfig for client ${PEER_NAME} found.\n\n"
+    cat "${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf"
+    # Show QR code on console
+    if [[ "${DISPLAY_QR}" == "true" ]]; then
+      qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
+    fi
+    echo
+    read -p "Overwrite existing config? [y/N] " YESNO
+    if [[ "${YESNO}" =="y" || "${YESNO}" =="Y" ]]; then
+	  return
+	else
+	  exit 10
+	fi
+  fi
+fi
+
 echo_out "Creating client config for: ${PEER_NAME}"
 mkdir -p ${TOOL_DIR}/clients/"${PEER_NAME}"
-wg genkey | (umask 0077 && tee ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pri) | wg pubkey > ${TOOL_DIR}/clients/"${PEER_NAME}"/"${PEER_NAME}".pub
+wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey > "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}".pub
 	
 # get command line ip address or generated from last-ip.txt
 if [ -z "${PEER_IP}" ]; then
@@ -170,7 +196,7 @@ echo "${PEER_IP} ${PEER_NAME}" | sudo tee -a /etc/hosts
 # Show new server config
 sudo wg show
 
-# Show QR code in bash
+# Show QR code on console
 if [[ "${DISPLAY_QR}" == "true" ]]; then
   qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
 fi
