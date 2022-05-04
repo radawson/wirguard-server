@@ -1,14 +1,14 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.2
+# v2.1.3
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
 
 # Default variables
 # Change these if you need to
-BRANCH="master"
+BRANCH="main"
 FORCE="false"
 INSTALL_DIRECTORY="/etc/wireguard"
 SERVER_IP="10.100.200.1"
@@ -102,6 +102,8 @@ done
 if [[ "${FORCE}" != "true" ]]; then
   check_root
 fi
+
+mkdir -p ${TOOL_DIR}
 
 # Clear the options from the arguments
 shift "$(( OPTIND - 1 ))"
