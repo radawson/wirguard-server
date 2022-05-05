@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.3
+VERSION="2.1.4"
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -135,7 +135,7 @@ echo_out "QR encoder installed."
 
 # Create tool directory
 echo_out "Creating tool directory"
-mkdir -p ${TOOL_DIR}
+mkdir -p "${TOOL_DIR}"
 mkdir -p "${TOOL_DIR}"/config
 
 # Get config templates
