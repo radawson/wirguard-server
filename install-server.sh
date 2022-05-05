@@ -103,8 +103,6 @@ if [[ "${FORCE}" != "true" ]]; then
   check_root
 fi
 
-mkdir -p ${TOOL_DIR}
-
 # Clear the options from the arguments
 shift "$(( OPTIND - 1 ))"
 
