@@ -12,7 +12,7 @@ BRANCH="main"
 FORCE="false"
 INSTALL_DIRECTORY="/etc/wireguard"
 SERVER_IP="10.100.200.1"
-SERVER_PORT="51280"
+SERVER_PORT="51820"
 SERVER_PRIVATE_FILE="server_key.pri"
 SERVER_PUBLIC_FILE="server_key.pub"
 TOOL_DIR="${HOME}/wireguard"
@@ -38,13 +38,14 @@ usage() {
   echo "Usage: ${0} [-fhv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
   echo 
+  echo "-d 		Run 'dev' branch. WARNING: may have unexpected results!"
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-h		Help displays script usage information."
   echo "-i IP_RANGE	Set the server network IP range."
   echo "-n KEY_NAME	Set the server key file name."
   echo "-p LISTEN_PORT	Set the server listen port"
   echo "-t TOOL_DIR	Set tool installation directory."
-  echo "-v 		Verbose mode. Displays the server name before executing COMMAND."
+  echo "-v 		Verbose mode."
   exit 1
 }
 
