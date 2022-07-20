@@ -1,7 +1,7 @@
 #!/bin/bash
 # Add Wireguard Client to Ubuntu Server
 # (C) 2021 Richard Dawson
-# v2.1.1
+VERSION="2.1.5"
 
 ## Global Variables
 DISPLAY_QR="false"
@@ -12,8 +12,9 @@ PATTERN=" |'"
 PEER_IP=""
 PEER_NAME=""
 SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
-SERVER_PORT="51280"
 TOOL_DIR="${HOME}/wireguard"
+SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort = //' )"
+
 
 # Functions
 check_root() {
@@ -59,7 +60,7 @@ usage() {
 # Provide usage statement if no parameters
 while getopts hi:op:qs:t:v OPTION; do
   case ${OPTION} in
-    f)
+  f)
 	# Force the script to run as root
 	  FORCE='true'
 	  ;;
@@ -67,11 +68,11 @@ while getopts hi:op:qs:t:v OPTION; do
 	# Help = display usage
 	  usage
 	  ;;
-    i)
+  i)
 	# Set IP address if none specified
-      PEER_IP="${OPTARG}"
-      echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
-      ;;
+    PEER_IP="${OPTARG}"
+    echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
+    ;;
 	o)
 	# Set overwrite to true
 	  OVERWRITE="true"
@@ -93,18 +94,18 @@ while getopts hi:op:qs:t:v OPTION; do
 	  ;;
 	t)
 	# Set IP address if none specified
-      TOOL_DIR="${OPTARG}"
-      echo_out "Tool Directory is ${TOOL_DIR}"
-      ;;
+    TOOL_DIR="${OPTARG}"
+    echo_out "Tool Directory is ${TOOL_DIR}"
+    ;;
 	v)
-      # Verbose is first so any other elements will echo as well
-      VERBOSE='true'
-      echo_out "Verbose mode on."
-      ;;
-    ?)
-      echo "Invalid option" >&2
-      usage
-      ;;
+    # Verbose is first so any other elements will echo as well
+    VERBOSE='true'
+    echo_out "Verbose mode on."
+    ;;
+  ?)
+    echo "Invalid option" >&2
+    usage
+    ;;
   esac
 done
 
@@ -134,11 +135,11 @@ if [[ "${OVERWRITE}" -ne "true" ]]; then
     fi
     echo
     read -p "Overwrite existing config? [y/N] " YESNO
-    if [[ "${YESNO}" =="y" || "${YESNO}" =="Y" ]]; then
-	  return
-	else
-	  exit 10
-	fi
+    if [[ "${YESNO}" == "y" || "${YESNO}" == "Y" ]]; then
+	    return
+	  else
+	    exit 10
+	  fi
   fi
 fi
 
@@ -155,7 +156,7 @@ fi
 #Try to get server IP address
 if [[ ${SERVER_IP} == "" ]]; then
   echo "Server IP not found automatically. Update wg0.conf before sending to clients"
-  SERVER_IP="<Insert IP HERE>"
+  SERVER_IP="<Insert IP ADDRESS HERE>"
 fi
 
 SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_key.pub)
@@ -166,7 +167,8 @@ PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
 cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
 cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 
-# Create QR Code for exportqrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png < ${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
+# Create QR Code for export
+qrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png < ${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
   
 # Compress file contents into packages
 zip -r ${TOOL_DIR}/clients/${PEER_NAME}.zip ${TOOL_DIR}/clients/${PEER_NAME}
