@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install instructions for clients created by add-client.sh
 # (C) 2021 Richard Dawson 
-# v2.0.0
+# v1.0.0
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
