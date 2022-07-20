@@ -182,7 +182,7 @@ PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
 PEER_PUB_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pub)
 ADD_LINE="${PEER_IP},${PEER_NAME},${PEER_PUB_KEY}"
 echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
-echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
+echo "${PEER_IP}" > ${TOOL_DIR}/last_ip.txt
     
 # Add peer to server config
 echo_out "Adding peer to server peer list"
