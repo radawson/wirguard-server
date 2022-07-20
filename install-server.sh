@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-VERSION="2.1.4"
+VERSION="2.1.5"
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -16,6 +16,7 @@ SERVER_PORT="51820"
 SERVER_PRIVATE_FILE="server_key.pri"
 SERVER_PUBLIC_FILE="server_key.pub"
 TOOL_DIR="${HOME}/wireguard"
+CONFIG_DIR="${TOOL_DIR}/config"
 
 # Functions
 check_root() {
@@ -35,9 +36,10 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fhv] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
+  echo "Usage: ${0} [-dfhv] [-c CONFIG_DIR] [-i IP_RANGE] [-n KEY_NAME] [-p LISTEN_PORT] [-t TOOL_DIR]" >&2
   echo "Sets up and starts wireguard server."
   echo 
+  echo "-c CONFIG_DIR	Set configuration directory."
   echo "-d 		Run 'dev' branch. WARNING: may have unexpected results!"
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-h		Help displays script usage information."
@@ -51,12 +53,12 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts dfhvi:n:p:t: OPTION; do
+while getopts c:dfhi:n:p:t:v OPTION; do
   case ${OPTION} in
-    v)
+    c)
       # Verbose is first so any other elements will echo as well
-      VERBOSE='true'
-      echo_out "Verbose mode on."
+      CONFIG_DIR="${OPTARG}"
+      echo_out "Configuration directory set to ${CONFIG_DIR}"
       ;;
 	d)
 	# Set installation to dev branch
@@ -92,6 +94,11 @@ while getopts dfhvi:n:p:t: OPTION; do
 	  TOOL_DIRECTORY="${OPTARG}"
 	  echo_out "Tool installation directory set to ${TOOL_DIR}."
 	  ;;
+	v)
+      # Verbose is first so any other elements will echo as well
+      VERBOSE='true'
+      echo_out "Verbose mode on."
+      ;;
     ?)
       echo "invalid option" >&2
       usage
@@ -110,7 +117,7 @@ shift "$(( OPTIND - 1 ))"
 # OS Update
 echo_out "Updating the OS."
 sudo apt-get update
-sudo apt-get -y upgrade
+sudo apt-get -y dist-upgrade
 
 # Install wireguard
 if [[ -z $(apt list --installed | grep ^wireguard) ]]; then
@@ -134,8 +141,7 @@ echo_out "QR encoder installed."
 
 # Create tool directory
 echo_out "Creating tool directory"
-mkdir -p "${TOOL_DIR}"
-mkdir -p "${TOOL_DIR}"/config
+mkdir -p "${CONFIG_DIR}"
 
 # Get config templates
 echo_out "Downloading WG adapter config files..."
@@ -184,7 +190,7 @@ then
 else
 	# Add server key to config
 	SERVER_PRI_KEY=$(cat ${TOOL_DIR}/server/${SERVER_PRIVATE_FILE})
-	cat ${TOOL_DIR}/config/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's/:SERVER_PORT:/'"${SERVER_PORT}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > "${TOOL_DIR}"/server/wg0.conf
+	cat ${CONFIG_DIR}/wg0-server.example.conf | sed -e 's/:SERVER_IP:/'"${SERVER_IP}"'/' | sed -e 's/:SERVER_PORT:/'"${SERVER_PORT}"'/' | sed -e 's|:SERVER_KEY:|'"${SERVER_PRI_KEY}"'|' > "${TOOL_DIR}"/server/wg0.conf
 	echo_out "Private key added to configuration."
 fi
 
