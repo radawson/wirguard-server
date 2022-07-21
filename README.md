@@ -1,6 +1,7 @@
 # wireguard-server
+### v2.5.1
 Script and interface for building and maintaining wireguard networks
-v2.5.1
+
 
 ## Usage
 Run `install-server.sh` to build the server.
