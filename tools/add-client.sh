@@ -41,12 +41,20 @@ echo_out() {
   fi
 }
 
+list_clients() {
+  while IFS= read -r line
+  do
+    echo "$line" | sed 's/,/\t/g'
+  done < "${TOOL_DIR}/peer_list.txt"
+}
+
 usage() {
-  echo "Usage: ${0} [-fhov] [-i IP_ADDRESS] PEER_NAME" >&2
+  echo "Usage: ${0} [-fhlov] [-i IP_ADDRESS] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
   echo 
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-i IP_ADDRESS	Set the peer ip address."
+  echo "-l 		List existing client configurations."
   echo "-o 		Overwrite existing client configuration."
   echo "-p SERVER_PORT	Set the server listen port."
   echo "-q		Display QR code on screen."
@@ -58,7 +66,7 @@ usage() {
 
 ## MAIN ##
 # Provide usage statement if no parameters
-while getopts hi:op:qs:t:v OPTION; do
+while getopts hi:lop:qs:t:v OPTION; do
   case ${OPTION} in
   f)
 	# Force the script to run as root
@@ -72,6 +80,10 @@ while getopts hi:op:qs:t:v OPTION; do
 	# Set IP address if none specified
     PEER_IP="${OPTARG}"
     echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
+    ;;
+  l)
+  # List Clients
+    list_clients
     ;;
 	o)
 	# Set overwrite to true
