@@ -200,7 +200,6 @@ echo "${PEER_IP}" > ${TOOL_DIR}/last_ip.txt
 echo_out "Adding peer to server peer list"
 PEER_CONFIG="\n[Peer]\nPublicKey = ${PEER_PUB_KEY} \nAllowedIPs = ${PEER_IP}"
 printf "${PEER_CONFIG}" | sudo tee -a /etc/wireguard/wg0.conf
-sudo systemctl restart wg-quick@wg0.service
 
 # Add peer through the live interface to be sure
 sudo wg set wg0 peer "${PEER_PUB_KEY}" allowed-ips ${PEER_IP}/32
