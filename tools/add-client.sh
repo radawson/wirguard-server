@@ -42,10 +42,12 @@ echo_out() {
 }
 
 list_clients() {
+  printf "\nCurrent Clients:\n"
   while IFS= read -r line
   do
-    echo "$line" | sed 's/,/\t/g'
+    echo -e "\t${line}" | sed 's/,/\t/g'
   done < "${TOOL_DIR}/peer_list.txt"
+  echo
 }
 
 usage() {
