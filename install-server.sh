@@ -237,4 +237,7 @@ sudo sysctl -p /etc/sysctl.conf
 # Set up wireguard to run on boot
 sudo systemctl enable wg-quick@wg0.service
 
+# Clean up
+rm --  "$( readlink -f -- "${BASH_SOURCE[0]:-$0}" 2> '/dev/null'; )";
+
 printf "\n\nWireguard tools installed at ${TOOL_DIR}.\n"
