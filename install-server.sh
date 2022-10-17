@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-VERSION="2.2.0"
+VERSION="2.9.0"
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -209,14 +209,12 @@ echo "${SERVER_IP}" > ${TOOL_DIR}/last_ip.txt
 # Download tool scripts
 echo_out "Downloading tool scripts"
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/add-client.sh
-sudo chmod +x add-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/install-client.sh
-sudo chmod +x install-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/remove-client.sh
-sudo chmod +x remove-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/wg-client.sh
-sudo chmod +x wg-client.sh
+sudo chmod +x *.sh
 sudo cp wg-client.sh /usr/local/bin
+rm wg-client.sh
 echo_out "Tool scripts installed to ${TOOL_DIR}"
 
 # Start up server
