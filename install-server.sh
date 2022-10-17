@@ -212,8 +212,8 @@ wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/install-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/remove-client.sh
 wget https://raw.githubusercontent.com/radawson/wireguard-server/${BRANCH}/tools/wg-client.sh
-sudo chmod +x *.sh
-sudo cp wg-client.sh /usr/local/bin
+sudo chmod 755 *.sh
+sudo cp wg-client.sh /usr/local/bin/wg-client
 rm wg-client.sh
 echo_out "Tool scripts installed to ${TOOL_DIR}"
 
