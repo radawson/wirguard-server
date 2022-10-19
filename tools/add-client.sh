@@ -1,7 +1,7 @@
 #!/bin/bash
 # Add Wireguard Client to Ubuntu Server
 # (C) 2021 Richard Dawson
-VERSION="2.1.6"
+VERSION="2.10.0"
 
 ## Global Variables
 DISPLAY_QR="false"
@@ -14,7 +14,7 @@ PEER_NAME=""
 SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
 TOOL_DIR="${HOME}/wireguard"
 SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort = //' )"
-
+MA_MODE=$(cat ${TOOL_DIR}/server.conf | grep MA_MODE | cut -c8)
 
 # Functions
 check_root() {
@@ -174,11 +174,21 @@ if [[ ${SERVER_IP} == "" ]]; then
 fi
 
 SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_key.pub)
-IP3=`echo ${PEER_IP} | cut -d"." -f1-3`.0
+
+# Set IP routing range as ALLOWED_IPS
+ALLOWED_IPS=`echo ${PEER_IP} | cut -d"." -f1-3`.0
 	
 # Create the client config
 PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
-cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' > clients/${PEER_NAME}/wg0.conf
+cat ${TOOL_DIR}/config/wg0-client.example.conf | \
+sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | \
+sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | \
+sed -e 's/:ALLOWED_IPS:/'"${ALLOWED_IPS}"'/' | \
+sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | \
+sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | \
+sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' \
+> clients/${PEER_NAME}/wg0.conf
+
 cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 
 # Create QR Code for export
