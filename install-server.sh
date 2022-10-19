@@ -150,7 +150,7 @@ echo_out "Creating tool directory"
 mkdir -p "${CONFIG_DIR}"
 
 # Write the config file
-cat > ${TOOL_DIR}/server.conf <<'_EOF'
+cat > ${TOOL_DIR}/server.conf <<_EOF
 BRANCH="${BRANCH}"
 FORCE="${FORCE}"
 INSTALL_DIRECTORY="${INSTALL_DIRECTORY}"
