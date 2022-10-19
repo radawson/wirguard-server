@@ -117,20 +117,6 @@ if [[ "${FORCE}" != "true" ]]; then
 	check_root
 fi
 
-# Write the config file
-cat > ${TOOL_DIR}/server.conf <<'_EOF'
-BRANCH="${BRANCH}"
-FORCE="${FORCE}"
-INSTALL_DIRECTORY="${INSTALL_DIRECTORY}"
-MA_MODE="${MA_MODE}"
-SERVER_IP="${SERVER_IP}"
-SERVER_PORT="${SERVER_PORT}"
-SERVER_PRIVATE_FILE="${SERVER_PRIVATE_FILE}"
-SERVER_PUBLIC_FILE="${SERVER_PUBLIC_FILE}"
-TOOL_DIR="${TOOL_DIR}"
-CONFIG_DIR="${CONFIG_DIR}"
-_EOF
-
 # Clear the options from the arguments
 shift "$((OPTIND - 1))"
 
@@ -162,6 +148,20 @@ echo_out "QR encoder installed."
 # Create tool directory
 echo_out "Creating tool directory"
 mkdir -p "${CONFIG_DIR}"
+
+# Write the config file
+cat > ${TOOL_DIR}/server.conf <<'_EOF'
+BRANCH="${BRANCH}"
+FORCE="${FORCE}"
+INSTALL_DIRECTORY="${INSTALL_DIRECTORY}"
+MA_MODE="${MA_MODE}"
+SERVER_IP="${SERVER_IP}"
+SERVER_PORT="${SERVER_PORT}"
+SERVER_PRIVATE_FILE="${SERVER_PRIVATE_FILE}"
+SERVER_PUBLIC_FILE="${SERVER_PUBLIC_FILE}"
+TOOL_DIR="${TOOL_DIR}"
+CONFIG_DIR="${CONFIG_DIR}"
+_EOF
 
 # Get config templates
 echo_out "Downloading WG adapter config files..."
