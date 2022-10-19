@@ -1,7 +1,7 @@
 #!/bin/bash
 # Wireguard Client client handler
 # (C) 2021 Richard Dawson
-VERSION="2.9.0"
+VERSION="2.10.0"
 
 ## Global Variables
 DISPLAY_QR="false"
@@ -14,7 +14,8 @@ PEER_NAME=""
 RETURN_VALUE="" # Used to return values from a function
 SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
 TOOL_DIR="${HOME}/wireguard"
-SERVER_PORT="51820"
+SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort = //')"
+MA_MODE=$(cat ${TOOL_DIR}/server.conf | grep MA_MODE | cut -c8)
 
 # Functions
 check_root() {
@@ -77,11 +78,25 @@ cmd_add() {
   fi
 
   SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_key.pub)
-  IP3=$(echo ${PEER_IP} | cut -d"." -f1-3).0
+
+  # Set IP routing range as ALLOWED_IPS
+  if [[ MA_MODE == "true" ]]; then
+    ALLOWED_IPS="0.0.0.0"
+  else
+    ALLOWED_IPS=$(echo ${PEER_IP} | cut -d"." -f1-3).0
+  fi
 
   # Create the client config
   PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
-  cat ${TOOL_DIR}/config/wg0-client.example.conf | sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | sed -e 's/:ALLOWED_IPS:/'"$IP3"'/' | sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' >clients/${PEER_NAME}/wg0.conf
+  cat ${TOOL_DIR}/config/wg0-client.example.conf |
+    sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' |
+    sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' |
+    sed -e 's/:ALLOWED_IPS:/'"${ALLOWED_IPS}"'/' |
+    sed -e 's|:SERVER_PUB_KEY:|'"${SERVER_PUB_KEY}"'|' |
+    sed -e 's|:SERVER_ADDRESS:|'"${SERVER_IP}"'|' |
+    sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' \
+    >clients/${PEER_NAME}/wg0.conf
+
   cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 
   # Create QR Code for export
@@ -147,7 +162,7 @@ cmd_remove() {
 }
 
 cmd_update() {
-printf "\n\nUpdate command goes here\n"
+  printf "\n\nUpdate command goes here\n"
 }
 
 echo_out() {
@@ -218,8 +233,8 @@ while getopts hi:op:qs:t:v OPTION; do
     VERBOSE='true'
     echo_out "Verbose mode on."
     ;;
-  ?)
-    ;;
+  ?) ;;
+
   esac
 done
 
