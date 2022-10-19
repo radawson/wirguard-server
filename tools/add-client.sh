@@ -13,7 +13,7 @@ PEER_IP=""
 PEER_NAME=""
 SERVER_IP=$(ip -o route get to 1 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
 TOOL_DIR="${HOME}/wireguard"
-SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort = //' )"
+SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort = //')"
 MA_MODE=$(cat ${TOOL_DIR}/server.conf | grep MA_MODE | cut -c8)
 
 # Functions
@@ -27,10 +27,9 @@ check_root() {
 }
 
 check_string() {
-  if [[ "$1" =~ ${PATTERN} ]]   
-  then
+  if [[ "$1" =~ ${PATTERN} ]]; then
     echo "Spaces found for ${2}"
-	echo "This may cause issues"
+    echo "This may cause issues"
   fi
 }
 
@@ -43,17 +42,16 @@ echo_out() {
 
 list_clients() {
   printf "\nCurrent Clients:\n"
-  while IFS= read -r line
-  do
+  while IFS= read -r line; do
     echo -e "\t${line}" | sed 's/,/\t/g'
-  done < "${TOOL_DIR}/peer_list.txt"
+  done <"${TOOL_DIR}/peer_list.txt"
   echo
 }
 
 usage() {
   echo "Usage: ${0} [-fhlov] [-i IP_ADDRESS] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
-  echo 
+  echo
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
   echo "-i IP_ADDRESS	Set the peer ip address."
   echo "-l 		List existing client configurations."
@@ -71,47 +69,47 @@ usage() {
 while getopts hi:lop:qs:t:v OPTION; do
   case ${OPTION} in
   f)
-	# Force the script to run as root
-	  FORCE='true'
-	  ;;
-	h)
-	# Help = display usage
-	  usage
-	  ;;
+    # Force the script to run as root
+    FORCE='true'
+    ;;
+  h)
+    # Help = display usage
+    usage
+    ;;
   i)
-	# Set IP address if none specified
+    # Set IP address if none specified
     PEER_IP="${OPTARG}"
     echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
     ;;
   l)
-  # List Clients
+    # List Clients
     list_clients
     ;;
-	o)
-	# Set overwrite to true
-	  OVERWRITE="true"
-	  ;;
-	p)
-	# Set server port
-	  SERVER_PORT="${OPTARG}"
-	  echo_out "Server port set to ${OPTARG}"
-	  ;;
-	q)
-	# Display QR code on screen
-	  DISPLAY_QR="true"
-	  echo_out "Display QR code on screen."
-	  ;;
-	s)
-	# Set Server IP address
-	  SERVER_IP="${OPTARG}"
-	  echo_out "Server IP address set to ${OPTARG}"
-	  ;;
-	t)
-	# Set IP address if none specified
+  o)
+    # Set overwrite to true
+    OVERWRITE="true"
+    ;;
+  p)
+    # Set server port
+    SERVER_PORT="${OPTARG}"
+    echo_out "Server port set to ${OPTARG}"
+    ;;
+  q)
+    # Display QR code on screen
+    DISPLAY_QR="true"
+    echo_out "Display QR code on screen."
+    ;;
+  s)
+    # Set Server IP address
+    SERVER_IP="${OPTARG}"
+    echo_out "Server IP address set to ${OPTARG}"
+    ;;
+  t)
+    # Set IP address if none specified
     TOOL_DIR="${OPTARG}"
     echo_out "Tool Directory is ${TOOL_DIR}"
     ;;
-	v)
+  v)
     # Verbose is first so any other elements will echo as well
     VERBOSE='true'
     echo_out "Verbose mode on."
@@ -124,10 +122,10 @@ while getopts hi:lop:qs:t:v OPTION; do
 done
 
 # Clear the options from the arguments
-shift "$(( OPTIND - 1 ))"
+shift "$((OPTIND - 1))"
 
 if [[ $# -eq 0 ]]; then
-	usage
+  usage
 fi
 
 # Check if forcing to run as root
@@ -145,28 +143,28 @@ if [[ "${OVERWRITE}" -ne "true" ]]; then
     cat "${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf"
     # Show QR code on console
     if [[ "${DISPLAY_QR}" == "true" ]]; then
-      qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
+      qrencode -t ansiutf8 <"${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
     fi
     echo
     read -p "Overwrite existing config? [y/N] " YESNO
     if [[ "${YESNO}" == "y" || "${YESNO}" == "Y" ]]; then
-	    return
-	  else
-	    exit 10
-	  fi
+      return
+    else
+      exit 10
+    fi
   fi
 fi
 
 echo_out "Creating client config for: ${PEER_NAME}"
 mkdir -p ${TOOL_DIR}/clients/"${PEER_NAME}"
-wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey > "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}".pub
-	
+wg genkey | (umask 0077 && tee "${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri") | wg pubkey >"${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}".pub
+
 # get command line ip address or generated from last-ip.txt
 if [ -z "${PEER_IP}" ]; then
   PEER_IP="10.100.200."$(expr $(cat "${TOOL_DIR}"/last_ip.txt | tr "." " " | awk '{print $4}') + 1)
-  sudo echo "${PEER_IP}" > "${TOOL_DIR}"/last_ip.txt
+  sudo echo "${PEER_IP}" >"${TOOL_DIR}"/last_ip.txt
 fi
-	
+
 #Try to get server IP address
 if [[ ${SERVER_IP} == "" ]]; then
   echo "Server IP not found automatically. Update wg0.conf before sending to clients"
@@ -176,38 +174,42 @@ fi
 SERVER_PUB_KEY=$(cat "${TOOL_DIR}"/server/server_key.pub)
 
 # Set IP routing range as ALLOWED_IPS
-ALLOWED_IPS=`echo ${PEER_IP} | cut -d"." -f1-3`.0
-	
+if [[ MA_MODE == "true" ]]; then
+  ALLOWED_IPS="0.0.0.0"
+else
+  ALLOWED_IPS=$(echo ${PEER_IP} | cut -d"." -f1-3).0
+fi
+
 # Create the client config
 PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
 cat ${TOOL_DIR}/config/wg0-client.example.conf | \
 sed -e 's/:CLIENT_IP:/'"${PEER_IP}"'/' | \
 sed -e 's|:CLIENT_KEY:|'"${PEER_PRIV_KEY}"'|' | \
 sed -e 's/:ALLOWED_IPS:/'"${ALLOWED_IPS}"'/' | \
-sed -e 's|:SERVER_PUB_KEY:|'"$SERVER_PUB_KEY"'|' | \
-sed -e 's|:SERVER_ADDRESS:|'"$SERVER_IP"'|' | \
+sed -e 's|:SERVER_PUB_KEY:|'"${SERVER_PUB_KEY}"'|' | \
+sed -e 's|:SERVER_ADDRESS:|'"${SERVER_IP}"'|' | \
 sed -e 's|:SERVER_PORT:|'"${SERVER_PORT}"'|' \
-> clients/${PEER_NAME}/wg0.conf
+>clients/${PEER_NAME}/wg0.conf
 
 cp ${TOOL_DIR}/install-client.sh ${TOOL_DIR}/clients/${PEER_NAME}/install-client.sh
 
 # Create QR Code for export
-qrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png < ${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
-  
+qrencode -o ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.png <${TOOL_DIR}/clients/${PEER_NAME}/wg0.conf
+
 # Compress file contents into packages
 zip -r ${TOOL_DIR}/clients/${PEER_NAME}.zip ${TOOL_DIR}/clients/${PEER_NAME}
 tar czvf ${TOOL_DIR}/clients/${PEER_NAME}.tar.gz ${TOOL_DIR}/clients/${PEER_NAME}
 echo_out "Created config files"
 
 # Add peer information to the tracking files
-echo 
+echo
 echo_out "Adding peer ${PEER_NAME} to peer list from /clients"
 PEER_PRIV_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pri)
 PEER_PUB_KEY=$(cat ${TOOL_DIR}/clients/${PEER_NAME}/${PEER_NAME}.pub)
 ADD_LINE="${PEER_IP},${PEER_NAME},${PEER_PUB_KEY}"
-echo "${ADD_LINE}" >> ${TOOL_DIR}/peer_list.txt
-echo "${PEER_IP}" > ${TOOL_DIR}/last_ip.txt
-    
+echo "${ADD_LINE}" >>${TOOL_DIR}/peer_list.txt
+echo "${PEER_IP}" >${TOOL_DIR}/last_ip.txt
+
 # Add peer to server config
 echo_out "Adding peer to server peer list"
 PEER_CONFIG="\n[Peer]\nPublicKey = ${PEER_PUB_KEY} \nAllowedIPs = ${PEER_IP}"
@@ -223,5 +225,5 @@ sudo wg show
 
 # Show QR code on console
 if [[ "${DISPLAY_QR}" == "true" ]]; then
-  qrencode -t ansiutf8 < "${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
+  qrencode -t ansiutf8 <"${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
 fi
