@@ -3,7 +3,7 @@
 # (C) 2021 Richard Dawson
 VERSION="2.10.0"
 
-# Ubuntu 18.04
+# Ubuntu 22.04
 #sudo add-apt-repository ppa:wireguard/wireguard
 
 # Default variables
