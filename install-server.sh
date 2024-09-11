@@ -1,9 +1,9 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021 Richard Dawson
-VERSION="2.10.0"
+VERSION="2.10.1"
 
-# Ubuntu 22.04
+# Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
 
 # Default variables
@@ -18,6 +18,7 @@ SERVER_PRIVATE_FILE="server_key.pri"
 SERVER_PUBLIC_FILE="server_key.pub"
 TOOL_DIR="${HOME}/wireguard"
 CONFIG_DIR="${TOOL_DIR}/config"
+START_DIR=$(pwd)
 
 # Functions
 check_root() {
@@ -264,6 +265,7 @@ fi
 sudo systemctl enable wg-quick@wg0.service
 
 # Clean up
+cd ${START_DIR}
 rm -- "$(readlink -f -- "${BASH_SOURCE[0]:-$0}" 2>'/dev/null')"
 
 printf "\n\nWireguard tools installed at ${TOOL_DIR}.\n"
