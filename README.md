@@ -18,6 +18,7 @@ I recommend you do not run this script as root. The script will automatically tr
 
 **Command Line Arguments**
 
+| Flag | Description |
 | :-------------- | :------------------------------------------------------- |
 |- c CONFIG_DIR | Set configuration directory |
 |- d | Run 'dev' branch. WARNING: may have unexpected results! |
