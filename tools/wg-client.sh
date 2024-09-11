@@ -161,6 +161,14 @@ cmd_remove() {
   fi
 }
 
+cmd_show() {
+  # Display QR code for client
+  if [[ "${DISPLAY_QR}" == "true" ]]; then
+    qrencode -t ansiutf8 <"${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
+  fi
+  printf "\n\nShow command goes here\n"
+}
+
 cmd_update() {
   printf "\n\nUpdate command goes here\n"
 }
@@ -173,7 +181,7 @@ echo_out() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fhov] [-i IP_ADDRESS] [ ADD | LIST | REMOVE | UPDATE ] PEER_NAME" >&2
+  echo "Usage: ${0} [-fhov] [-i IP_ADDRESS] [ ADD | LIST | REMOVE | SHOW | UPDATE ] PEER_NAME" >&2
   echo "Client/peer handler for wireguard server."
   echo
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
