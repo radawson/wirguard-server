@@ -17,6 +17,7 @@ bash install-server.sh
 I recommend you do not run this script as root. The script will automatically try to prevent this, but you can force it with the `-f` flag.
 
 **Command Line Arguments**
+
 | :-------------- | :------------------------------------------------------- |
 |- c CONFIG_DIR | Set configuration directory |
 |- d | Run 'dev' branch. WARNING: may have unexpected results! |
