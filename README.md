@@ -10,11 +10,15 @@ Script and tools for building and maintaining wireguard networks from the comman
 
 Run `install-server.sh` to build the server.
 
+``` bash
+bash install-server.sh
+```
+
 I recommend you do not run this script as root. The script will automatically try to prevent this, but you can force it with the `-f` flag.
 
 **Command Line Arguments**
 
-- c CONFIG_DIR Set configuration directory
+- c CONFIG_DIR[tab]Set configuration directory
 - d       Run 'dev' branch. WARNING: may have unexpected results!
 - f       Force run as root. WARNING: may have unexpected results!
 - h          Help displays script usage information
