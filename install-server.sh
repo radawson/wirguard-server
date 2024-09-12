@@ -1,7 +1,7 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
-# (C) 2021 Richard Dawson
-VERSION="2.10.1"
+# (C) 2021-2024 Richard Dawson
+VERSION="2.12.0"
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
@@ -21,6 +21,18 @@ CONFIG_DIR="${TOOL_DIR}/config"
 START_DIR=$(pwd)
 
 # Functions
+check_ip(){
+	local ip="$1"
+
+    # Regular expression for validating IPv4 addresses
+    if [[ "$ip" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
+        echo "$ip"  # Return the valid IP address
+    else
+        echo "Error: '$ip' is not a valid IP address." >&2
+        exit 1
+    fi
+}
+
 check_root() {
 	# Check to ensure script is not run as root
 	if [[ "${UID}" -eq 0 ]]; then
@@ -78,8 +90,8 @@ while getopts c:dfhi:mn:p:t:v OPTION; do
 		;;
 	i)
 		# Set IP range if none specified
-		SERVER_IP="${OPTARG}"
-		echo_out "Server IP address is ${IP_ADDRESS}"
+		SERVER_IP=$(check_ip "${OPTARG}")
+		echo_out "Internal server IP address is ${SERVER_IP}"
 		;;
 	m)
 		# Activate MA mode, which routes ALL traffic through WG server

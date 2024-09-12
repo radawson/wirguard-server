@@ -1,7 +1,7 @@
 #!/bin/bash
 # Add Wireguard Client to Ubuntu Server
-# (C) 2021 Richard Dawson
-VERSION="2.10.0"
+# (C) 2021-2024 Richard Dawson
+VERSION="2.12.0"
 
 ## Global Variables
 DISPLAY_QR="false"
@@ -17,6 +17,18 @@ SERVER_PORT="$(grep ListenPort ${TOOL_DIR}/server/wg0.conf | sed 's/ListenPort =
 MA_MODE=$(cat ${TOOL_DIR}/server.conf | grep MA_MODE | cut -c8)
 
 # Functions
+check_ip(){
+	local ip="$1"
+
+    # Regular expression for validating IPv4 addresses
+    if [[ "$ip" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
+        echo "$ip"  # Return the valid IP address
+    else
+        echo "Error: '$ip' is not a valid IP address." >&2
+        exit 1
+    fi
+}
+
 check_root() {
   # Check to ensure script is not run as root
   if [[ "${UID}" -eq 0 ]]; then
@@ -78,8 +90,8 @@ while getopts hi:lop:qs:t:v OPTION; do
     ;;
   i)
     # Set IP address if none specified
-    PEER_IP="${OPTARG}"
-    echo_out "Client WireGuard IP address is ${IP_ADDRESS}"
+    PEER_IP=$(check_ip "${OPTARG}")
+    echo_out "Client WireGuard IP address is ${PEER_IP}"
     ;;
   l)
     # List Clients
@@ -101,8 +113,8 @@ while getopts hi:lop:qs:t:v OPTION; do
     ;;
   s)
     # Set Server IP address
-    SERVER_IP="${OPTARG}"
-    echo_out "Server IP address set to ${OPTARG}"
+    SERVER_IP=$(check_ip "${OPTARG}")
+		echo_out "Internal server IP address is ${SERVER_IP}"
     ;;
   t)
     # Set IP address if none specified
