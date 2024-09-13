@@ -1,9 +1,10 @@
 #!/bin/bash
 # Wireguard Client client handler
 # (C) 2021-2024 Richard Dawson
-VERSION="2.12.0"
+VERSION="2.12.1"
 
 ## Global Variables
+ADAPTER=$(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//")
 DISPLAY_QR="false"
 FORCE="false"
 FQDN=$(hostname -f)

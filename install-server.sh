@@ -1,13 +1,14 @@
 #!/bin/bash
 # Install wireguard on Ubuntu Server
 # (C) 2021-2024 Richard Dawson
-VERSION="2.12.0"
+VERSION="2.12.1"
 
 # Ubuntu 18.04
 #sudo add-apt-repository ppa:wireguard/wireguard
 
 # Default variables
 # Change these if you need to
+ADAPTER=$(ip route | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//")
 BRANCH="main"
 FORCE="false"
 INSTALL_DIRECTORY="/etc/wireguard"
@@ -174,6 +175,8 @@ mkdir -p "${CONFIG_DIR}"
 
 # Write the config file
 cat > ${TOOL_DIR}/server.conf <<_EOF
+VERSION="${VERSION}"
+ADAPTER="${ADAPTER}"
 BRANCH="${BRANCH}"
 FORCE="${FORCE}"
 INSTALL_DIRECTORY="${INSTALL_DIRECTORY}"
@@ -279,8 +282,8 @@ echo "Server started"
 if [[ ${MA_MODE} == "true" ]]; then
 	# Use this to forward traffic from the server
 	sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-	sudo sysctl -p /etc/sysctl.conf
-    #ufw route allow in on wg0 out on enp5s0
+	sudo sysctl -p 
+    sudo ufw route allow in on wg0 out on ${ADAPTER}
 fi
 
 # Set up wireguard to run on boot
