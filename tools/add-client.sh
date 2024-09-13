@@ -47,8 +47,18 @@ check_string() {
 
 echo_out() {
   local MESSAGE="${@}"
-  if [[ "${VERBOSE}" = 'true' ]]; then
-    printf "${MESSAGE}\n"
+  if [[ -t 0 ]]; then
+    # No pipe, just print the arguments
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      printf "${MESSAGE}\n"
+    fi
+  else
+    # Read from pipe and print if VERBOSE is true
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      while IFS= read -r line; do
+        printf "${line}\n"
+      done
+    fi
   fi
 }
 
@@ -229,8 +239,8 @@ printf "${PEER_CONFIG}" | sudo tee -a /etc/wireguard/wg0.conf
 
 # Add peer through the live interface to be sure
 sudo wg set wg0 peer "${PEER_PUB_KEY}" allowed-ips ${PEER_IP}/32
-echo_out "Adding peer to hosts file"
-echo "${PEER_IP} ${PEER_NAME}" | sudo tee -a /etc/hosts
+echo_out "\nAdding peer to hosts file"
+echo "${PEER_IP} ${PEER_NAME}" | sudo tee -a /etc/hosts | echo_out
 
 # Show new server config
 sudo wg show

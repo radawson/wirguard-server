@@ -174,6 +174,7 @@ cmd_remove() {
 }
 
 cmd_show() {
+  local PEER_NAME="${1}"
   # Display QR code for client
   if [[ "${DISPLAY_QR}" == "true" ]]; then
     qrencode -t ansiutf8 <"${TOOL_DIR}"/clients/${PEER_NAME}/wg0.conf
@@ -187,8 +188,18 @@ cmd_update() {
 
 echo_out() {
   local MESSAGE="${@}"
-  if [[ "${VERBOSE}" = 'true' ]]; then
-    printf "${MESSAGE}\n"
+  if [[ -t 0 ]]; then
+    # No pipe, just print the arguments
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      printf "${MESSAGE}\n"
+    fi
+  else
+    # Read from pipe and print if VERBOSE is true
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      while IFS= read -r line; do
+        printf "${line}\n"
+      done
+    fi
   fi
 }
 
@@ -283,6 +294,10 @@ if [[ ${#} -eq 1 ]]; then
     ;;
   list)
     cmd_list
+    exit 0
+    ;;
+  show)
+    cmd_show ${2}
     exit 0
     ;;
   *)

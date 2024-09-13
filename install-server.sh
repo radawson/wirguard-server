@@ -43,10 +43,20 @@ check_root() {
 }
 
 echo_out() {
-	local MESSAGE="${@}"
-	if [[ "${VERBOSE}" = 'true' ]]; then
-		printf "${MESSAGE}\n"
-	fi
+  local MESSAGE="${@}"
+  if [[ -t 0 ]]; then
+    # No pipe, just print the arguments
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      printf "${MESSAGE}\n"
+    fi
+  else
+    # Read from pipe and print if VERBOSE is true
+    if [[ "${VERBOSE}" = 'true' ]]; then
+      while IFS= read -r line; do
+        printf "${line}\n"
+      done
+    fi
+  fi
 }
 
 usage() {
