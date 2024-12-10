@@ -72,7 +72,7 @@ list_clients() {
 }
 
 usage() {
-  echo "Usage: ${0} [-fhlov] [-i IP_ADDRESS] PEER_NAME" >&2
+  echo "Usage: ${0} [-fhloqv] [-i IP_ADDRESS] PEER_NAME" >&2
   echo "Creates a new client on the wireguard server."
   echo
   echo "-f 		Force run as root. WARNING: may have unexpected results!"
