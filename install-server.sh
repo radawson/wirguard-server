@@ -24,7 +24,7 @@ START_DIR=$(pwd)
 # Functions
 check_ip(){
 	local ip="$1"
-
+	
     # Regular expression for validating IPv4 addresses
     if [[ "$ip" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
         echo "$ip"  # Return the valid IP address
